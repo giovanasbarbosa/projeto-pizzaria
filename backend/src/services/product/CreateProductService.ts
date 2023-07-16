@@ -21,7 +21,7 @@ class CreateProductService{
             }
         })
         
-        return {ok: true}
+        return product
     }
 }
 
