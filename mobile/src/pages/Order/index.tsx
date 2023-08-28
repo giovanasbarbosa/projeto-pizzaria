@@ -5,7 +5,9 @@ import {Feather} from '@expo/vector-icons';
 import { api } from "../../services/api";
 import { useEffect, useState } from "react";
 import { ModalPicker } from "../../assets/ModalPicker";
-import {ListItem} from '../../components/ListItem'
+import {ListItem} from '../../components/ListItem';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {StackParamsList} from '../../routes/app.routes'
 
 type RouteDetailParams={
     Order:{
@@ -35,7 +37,7 @@ type OrderRouteProps = RouteProp<RouteDetailParams, 'Order'>
 
 export default function Order(){
     const route = useRoute<OrderRouteProps>()
-    const navigation = useNavigation()
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>()
 
     const [category, setCategory] = useState<CategoryProps[] | []>([])
     const [categorySelected, setCategorySelected] = useState<CategoryProps | undefined>()
@@ -116,7 +118,24 @@ export default function Order(){
     }
 
     async function handleDeleteItem(item_id: string){
-        alert("ID" + item_id)
+       await api.delete('/order/remove', {
+        params:{
+            item_id: item_id
+        }
+       })
+       //Após remover da api, removemos esse item da nossa lista de itens
+       let removeItem = items.filter(item => {
+        return(item.id !== item_id)
+       })
+
+       setItems(removeItem)
+    }
+
+    function handleFinishOrder(){
+        navigation.navigate('FinishOrder', {
+            number: route.params.number,
+            order_id: route.params.order_id
+        })
     }
 
     return(
@@ -170,6 +189,7 @@ export default function Order(){
                 <TouchableOpacity 
                     style={[styles.button, {opacity: items.length===0 ? 0.3 : 1}]}
                     disabled={items.length===0}
+                    onPress={handleFinishOrder}
                 >
                     <Text style={styles.buttonText}>Avançar</Text>
                 </TouchableOpacity>
