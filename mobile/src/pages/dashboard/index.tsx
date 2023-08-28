@@ -3,6 +3,7 @@ import {View, Text, SafeAreaView, TouchableOpacity, TextInput, StyleSheet} from 
 import {useNavigation} from '@react-navigation/native';
 import { StackParamsList } from "../../routes/app.routes";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { api } from "../../services/api";
 
 
 export default function Dashboard(){
@@ -14,9 +15,14 @@ export default function Dashboard(){
         if(number===''){
             return
         }
+
+        const response = await api.post('/order', {
+            table: Number(number)
+        })
+
         //Fazer a requisição e abrir a mesa para navegar para a próxima tela
-        navigation.navigate('Order', {number: number, order_id: '32289354-d35a-44d2-beca-6d2af1e82f9a'})
-        
+        navigation.navigate('Order', {number: number, order_id: response.data.id})
+        setNumber('')
     }
 
     return(
@@ -30,6 +36,7 @@ export default function Dashboard(){
             placeholderTextColor='#FFF'
             value={number}
             onChangeText={setNumber}
+            keyboardType="numeric"
             />
 
             <TouchableOpacity style={styles.button} onPress={openOrder}>
